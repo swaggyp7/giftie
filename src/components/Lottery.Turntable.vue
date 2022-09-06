@@ -17,9 +17,11 @@
 </template>
 
 <script>
-import { GLOBAL_KEYS, gifts, homeConfig } from '../gift.setting.js';
+import { homeConfig } from "../gift.setting.js";
+import axios from "axios";
+import { Message } from "element-ui";
 export default {
-  name: 'LotteryTurntable',
+  name: "LotteryTurntable",
   data() {
     this.defaultStyle = {
       fontColor: "#AFFFD7",
@@ -54,18 +56,28 @@ export default {
   },
 
   methods: {
-    getGiftList() {
+    async getGiftList() {
       const prizes = [];
-      let axis = [[0, 0], [1, 0], [2, 0], [2, 1], [2, 2], [1, 2], [0, 2], [0, 1],];
-      let data = gifts.map(item => {
+      let axis = [
+        [0, 0],
+        [1, 0],
+        [2, 0],
+        [2, 1],
+        [2, 2],
+        [1, 2],
+        [0, 2],
+        [0, 1],
+      ];
+      let resourceData = await axios.post(`${homeConfig.apiUrl}/gifts/list`);
+      let data = resourceData.data.data.map((item) => {
         return {
           fullName: item.name,
           name: item.alias,
-          img: require(`../../public${item.image}`),
-          top: '70%',
+          img: item.image,
+          top: "70%",
         };
       });
-      
+
       // let data = [];
       data.forEach((item, index) => {
         prizes.push({
@@ -76,46 +88,52 @@ export default {
           fonts: [{ text: item.name, top: item.top }],
           imgs: [
             {
-              src: require('../assets/images/block-bg.png'),
-              activeSrc: require('../assets/images/active-block-bg.png'),
-              width: '100%',
-              height: '100%',
+              src: require("../assets/images/block-bg.png"),
+              activeSrc: require("../assets/images/active-block-bg.png"),
+              width: "100%",
+              height: "100%",
             },
             {
               src: item.img,
-              width: '70%',
-              top: '3%',
+              width: "70%",
+              top: "3%",
             },
           ],
         });
       });
       this.prizes = prizes;
     },
-    startCallBack () {
+    async startCallBack() {
       this.$refs.luckyGrid.play();
       let targetGiftIndex = homeConfig.targetGiftIndex;
       if (!!targetGiftIndex === false) {
-        targetGiftIndex = Math.random() * 8 >> 0;
+        const admin = this.$route.query.admin;
+        const result = await axios.post(`${homeConfig.apiUrl}/gifts/lottery`, {
+          admin,
+        });
+        if (result.data && result.data.success) {
+          targetGiftIndex = result.data.data.index;
+        } else {
+          Message(result.data.msg);
+        }
       }
       setTimeout(() => {
-        this.$refs.luckyGrid.stop(targetGiftIndex)
+        this.$refs.luckyGrid.stop(targetGiftIndex);
       }, homeConfig.timeout);
     },
-    endCallBack (prize) {
+    endCallBack(prize) {
+      console.log(prize);
       const { imgs, fullName } = prize;
       const imageUrl = imgs[1].src;
-      localStorage.setItem(GLOBAL_KEYS.EXIST_KEY, '1');
-      localStorage.setItem(GLOBAL_KEYS.NAME_KEY, fullName);
-      localStorage.setItem(GLOBAL_KEYS.IMAGE_KEY, imageUrl);
       setTimeout(() => {
-        this.$emit('success');
+        this.$emit("success", { name: fullName, image: imageUrl });
       }, 1200);
-    }
+    },
   },
 
   mounted() {
     this.getGiftList();
-  }, 
+  },
 };
 </script>
 

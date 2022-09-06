@@ -19,41 +19,42 @@
 </template>
 
 <script>
-import Home from './Lottery.Home.vue';
-import GiftDisplayer from './Lottery.GiftDisplayer.vue';
-import Turntable from './Lottery.Turntable.vue';
-import { gifts as GIFTS } from '@/gift.setting.js';
+import Home from "./Lottery.Home.vue";
+import GiftDisplayer from "./Lottery.GiftDisplayer.vue";
+import Turntable from "./Lottery.Turntable.vue";
+import axios from "axios";
+import { homeConfig } from "../gift.setting";
 export default {
-  name: 'Lottery',
+  name: "Lottery",
   components: { Home, GiftDisplayer, Turntable },
   data() {
     this.swiperOptions = {
-      direction: 'vertical',
+      direction: "vertical",
       width: window.innerWidth,
       height: window.innerHeight,
-    }
+    };
     return {
       gifts: [],
-    }
+    };
   },
   methods: {
-    showGifts() {
-      this.gifts = GIFTS;
+    async showGifts() {
+      let resourceData = await axios.post(`${homeConfig.apiUrl}/gifts/list`);
+      this.gifts = resourceData.data.data;
     },
 
-    handleTurntableSuccess() {
-      this.$emit('showGift');
+    handleTurntableSuccess(gift) {
+      this.$emit("showGift", gift);
     },
   },
   mounted() {
     this.showGifts();
   },
-}
+};
 </script>
 
 <style scoped>
 .lottery-component {
-
 }
 .swiper {
   height: 100%;

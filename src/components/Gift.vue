@@ -2,41 +2,50 @@
   <div class="gift-component full-screen">
     <h1>恭喜你中奖啦！</h1>
     <div class="gift-image-area">
-      <img :src="giftImageUrl" alt="" class="gift-image">
+      <img :src="gift.image" alt="" class="gift-image" />
     </div>
-    <h3>{{ giftName }}</h3>
-    <div v-if="isShowRestart" class="replay-button" @click="replay">重新体验</div>
+    <h3>{{ gift.name }}</h3>
+    <h4>{{ gift.msg }}</h4>
+    <div v-if="isShowRestart" class="replay-button" @click="replay">
+      重新体验
+    </div>
   </div>
 </template>
 
 <script>
-import { GLOBAL_KEYS, IS_SHOW_RESTART } from '../gift.setting.js';
+// import { GLOBAL_KEYS, IS_SHOW_RESTART } from "../gift.setting.js";
 export default {
-  name: 'Gift',
+  name: "Gift",
   data() {
     return {
-      giftName: '',
-      giftImageUrl: '',
+      giftName: "",
+      giftImageUrl: "",
       isShowRestart: false,
-    }
+    };
+  },
+  props: {
+    gift: {
+      name: "",
+      image: "",
+    },
   },
   methods: {
-    getLocalGift() {
-      const giftName = localStorage.getItem(GLOBAL_KEYS.NAME_KEY);
-      const giftImageUrl = localStorage.getItem(GLOBAL_KEYS.IMAGE_KEY);
-      this.giftName = giftName;
-      this.giftImageUrl = giftImageUrl;
-      this.isShowRestart = IS_SHOW_RESTART;
-    },
+    // getLocalGift() {
+    //   const giftName = localStorage.getItem(GLOBAL_KEYS.NAME_KEY);
+    //   const giftImageUrl = localStorage.getItem(GLOBAL_KEYS.IMAGE_KEY);
+    //   this.giftName = giftName;
+    //   this.giftImageUrl = giftImageUrl;
+    //   this.isShowRestart = IS_SHOW_RESTART;
+    // },
     replay() {
-      localStorage.removeItem(GLOBAL_KEYS.EXIST_KEY);
-      location.replace('/');
+      // localStorage.removeItem(GLOBAL_KEYS.EXIST_KEY);
+      // location.replace("/");
     },
   },
   mounted() {
-    this.getLocalGift();
+    // this.getLocalGift();
   },
-}
+};
 </script>
 
 <style scoped>
